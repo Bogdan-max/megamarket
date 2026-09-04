@@ -1,0 +1,19 @@
+﻿services:
+  - type: web
+    name: megamarket-api
+    runtime: node
+    plan: free
+    buildCommand: npm install && npx prisma generate && npx nest build
+    startCommand: npx prisma migrate deploy && node dist/main.js
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+        value: "file:/data/megamarket/dev.db"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 3001
+    disk:
+      name: megamarket-db
+      mountPath: /data
+      sizeGB: 1

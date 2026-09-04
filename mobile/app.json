@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "МегаМаркет",
+    "slug": "megamarket",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#16a34a"
+    },
+    "android": {
+      "package": "com.megamarket.app"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.megamarket.app"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "extra": {
+      "apiUrl": "http://localhost:3001/api"
+    }
+  }
+}
