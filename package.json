@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "cd backend && node dist/main.js"
+    "build": "cd backend && npm install && npx prisma generate && nest build",
+    "start": "cd backend && npx prisma migrate deploy && npx prisma db seed && node dist/main.js"
   }
 }
