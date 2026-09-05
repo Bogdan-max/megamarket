@@ -95,6 +95,30 @@ function CreateAdModal({ onClose, onCreated }: { onClose: () => void; onCreated:
   const [step, setStep] = useState<'create' | 'publish' | 'done'>('create');
   const [result, setResult] = useState<any>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [platforms, setPlatforms] = useState<any[]>([]);
+  const [connectMsg, setConnectMsg] = useState('');
+
+  useEffect(() => {
+    fetch('/api/platforms').then(r => r.json()).then(setPlatforms).catch(() => {});
+  }, []);
+
+  async function connectAvito() {
+    setConnectMsg('');
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/platforms/avito/auth-url', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.open(data.url, '_blank');
+      } else {
+        setConnectMsg(data.message || 'Авито ещё не настроено на сервере');
+      }
+    } catch (e: any) {
+      setConnectMsg(e.message || 'Ошибка подключения Авито');
+    }
+  }
 
   async function aiGenerate() {
     if (!form.description && !form.title) {
@@ -237,18 +261,50 @@ function CreateAdModal({ onClose, onCreated }: { onClose: () => void; onCreated:
               ))}
             </select>
 
-            <label className="flex items-center gap-3 p-4 bg-brand-50 rounded-xl border border-brand-200 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={publishToAll}
-                onChange={e => setPublishToAll(e.target.checked)}
-                className="w-5 h-5 text-brand-500 rounded"
-              />
-              <div>
-                <p className="font-semibold text-brand-800">🚀 Опубликовать на все площадки</p>
-                <p className="text-sm text-brand-600">Авито, Юла, OLX, Мешок и другие</p>
+            <div className="rounded-xl border border-gray-200 overflow-hidden">
+              <label className="flex items-center gap-3 p-4 bg-brand-50 border-b border-brand-200 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={publishToAll}
+                  onChange={e => setPublishToAll(e.target.checked)}
+                  className="w-5 h-5 text-brand-500 rounded"
+                />
+                <div>
+                  <p className="font-semibold text-brand-800">🚀 Опубликовать на все площадки</p>
+                  <p className="text-sm text-brand-600">Авито, Юла, OLX, Мешок и другие</p>
+                </div>
+              </label>
+
+              <div className="p-3 space-y-2 bg-white">
+                {platforms.map((p: any) => (
+                  <div key={p.id} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <span>{p.icon}</span>
+                      <span className="font-medium">{p.name}</span>
+                      {p.integration === 'real' ? (
+                        <span className="text-[10px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded-full">API</span>
+                      ) : (
+                        <span className="text-[10px] bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded-full">demo</span>
+                      )}
+                    </div>
+                    <span className="text-xs text-gray-400 truncate max-w-[180px]">{p.note}</span>
+                  </div>
+                ))}
+
+                {platforms.some((p: any) => p.id === 'avito') && (
+                  <button
+                    type="button"
+                    onClick={connectAvito}
+                    className="w-full mt-1 px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition"
+                  >
+                    🔗 Подключить Авито (реальная публикация)
+                  </button>
+                )}
+                {connectMsg && (
+                  <p className="text-xs text-amber-600">{connectMsg}</p>
+                )}
               </div>
-            </label>
+            </div>
 
             <button
               type="submit"
